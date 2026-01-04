@@ -11,27 +11,33 @@ class LocationService {
 
   /// Check and request location permissions
   Future<bool> requestPermissions() async {
-    // Check if location services are enabled
+    // 1. Check Service Status
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      print('Location services are disabled.');
+      print('Location services are disabled - prompting user to enable GPS');
+      await Geolocator.openLocationSettings();
       return false;
     }
 
-    // Request permission
-    var status = await Permission.location.request();
-    if (status.isDenied) {
-      print('Location permission denied');
+    // 2. Check Permission Status
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        print('Location permission denied');
+        return false;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      print('Location permission permanently denied - opening app settings');
+      await Geolocator.openAppSettings();
       return false;
     }
 
-    if (status.isPermanentlyDenied) {
-      print('Location permission permanently denied');
-      await openAppSettings();
-      return false;
-    }
-
-    return status.isGranted;
+    return permission == LocationPermission.whileInUse ||
+        permission == LocationPermission.always;
   }
 
   /// Start listening to location updates
@@ -157,14 +163,17 @@ class BlackSpotDatabase {
   }
 
   /// Get police station code for location
+  /// Returns police station jurisdiction based on proximity to black spots
+  /// or geographic zones (bounding boxes)
   static int getPoliceStationForLocation(double latitude, double longitude) {
-    // Find nearest black spot to determine police station jurisdiction
+    // First try: Find nearest black spot to determine jurisdiction
     var nearestSpot = getNearestBlackSpot(latitude, longitude);
     if (nearestSpot != null) {
       return nearestSpot['station'] as int;
     }
 
-    // Default mapping based on rough geographic zones
+    // Second try: Use rough geographic zones (bounding boxes)
+    // Note: This is approximate. For production, use proper geofencing.
     // Uppal area: 17.40-17.42, 78.55-78.57
     if (latitude >= 17.40 && latitude <= 17.42 && 
         longitude >= 78.55 && longitude <= 78.57) {
@@ -186,7 +195,38 @@ class BlackSpotDatabase {
       return 2; // Pocharam PS
     }
 
-    // Default to Uppal PS
+    // Default: Use Uppal PS as fallback
+    // For production, consider returning -1 for "Unknown" and handling in UI
     return 3;
+  }
+
+  /// Get nearest police station by distance (more accurate than bounding boxes)
+  static int getNearestPoliceStation(double latitude, double longitude) {
+    // Station headquarters approximate locations
+    final stations = [
+      {'id': 0, 'name': 'Ghatkesar PS', 'lat': 17.4500, 'lng': 78.5800},
+      {'id': 1, 'name': 'Medipally PS', 'lat': 17.4200, 'lng': 78.5300},
+      {'id': 2, 'name': 'Pocharam PS', 'lat': 17.4300, 'lng': 78.5200},
+      {'id': 3, 'name': 'Uppal PS', 'lat': 17.4050, 'lng': 78.5600},
+    ];
+
+    int nearestId = 3;
+    double minDistance = double.infinity;
+
+    for (var station in stations) {
+      double distance = Geolocator.distanceBetween(
+        latitude,
+        longitude,
+        station['lat'] as double,
+        station['lng'] as double,
+      );
+
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestId = station['id'] as int;
+      }
+    }
+
+    return nearestId;
   }
 }

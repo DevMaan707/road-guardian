@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'presentation/widgets/organisms/safety_dashboard.dart';
+import 'presentation/widgets/organisms/map_hud_dashboard.dart';
+import 'config/mapbox_config.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,11 +37,16 @@ class RoadGuardianApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Use Map HUD if Mapbox is configured, otherwise use basic dashboard
+    final useMapView = MapboxConfig.isConfigured;
+
     return MaterialApp(
       title: 'Road Guardian Pro',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
-      home: const SafetyDashboard(),
+      home: useMapView
+          ? MapHudDashboard(mapboxAccessToken: MapboxConfig.token)
+          : const SafetyDashboard(),
     );
   }
 }
