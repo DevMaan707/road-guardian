@@ -224,13 +224,13 @@ class MiniRiskGauge extends StatelessWidget {
               color: AppColors.getRiskColor(risk),
             ),
           ),
-          Text(
-            risk.toInt().toString(),
-            style: AppTextStyles.dataLarge.copyWith(
-              fontSize: size * 0.3,
-              color: AppColors.getRiskColor(risk),
-            ),
-          ),
+          // Text(
+          //   risk.toInt().toString(),
+          //   style: AppTextStyles.dataLarge.copyWith(
+          //     fontSize: size * 0.3,
+          //     color: AppColors.getRiskColor(risk),
+          //   ),
+          // ),
         ],
       ),
     );

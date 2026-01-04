@@ -16,7 +16,7 @@ class MapboxConfig {
   /// Using environment variable with fallback to hardcoded token
   static const String accessToken = String.fromEnvironment(
     'ACCESS_TOKEN',
-    defaultValue: 'pk....',
+    defaultValue: 'pk...',
   );
 
   /// Check if token is configured

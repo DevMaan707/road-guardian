@@ -1,0 +1,178 @@
+[
+  {
+    "name": "Mehdipatnam Junction",
+    "lat": 17.3926,
+    "lng": 78.4358,
+    "radius": 150,
+    "severity": "high",
+    "accident_count": 47,
+    "fatalities": 8,
+    "reasons": [
+      "High-speed traffic merging from multiple directions",
+      "Poor visibility at night due to inadequate street lighting",
+      "Frequent violation of traffic signals",
+      "Heavy pedestrian crossing without proper zebra crossings"
+    ],
+    "safety_measures": [
+      "Reduce speed to 30 km/h when approaching",
+      "Use extreme caution during peak hours (8-10 AM, 6-8 PM)",
+      "Watch for pedestrians crossing unexpectedly",
+      "Avoid overtaking near the junction"
+    ],
+    "peak_danger_hours": "18:00-21:00"
+  },
+  {
+    "name": "Outer Ring Road Near TSPA",
+    "lat": 17.4003,
+    "lng": 78.5984,
+    "radius": 200,
+    "severity": "critical",
+    "accident_count": 62,
+    "fatalities": 15,
+    "reasons": [
+      "High-speed highway with blind curves",
+      "Heavy truck traffic leading to brake failures",
+      "Lack of median barriers in certain sections",
+      "Stray animals frequently crossing the road"
+    ],
+    "safety_measures": [
+      "Maintain speed under 60 km/h in marked zones",
+      "Keep safe distance from trucks (minimum 50 meters)",
+      "Use high beam only when no oncoming traffic",
+      "Stay alert for animals especially at dawn/dusk"
+    ],
+    "peak_danger_hours": "22:00-05:00"
+  },
+  {
+    "name": "Gachibowli Flyover",
+    "lat": 17.4400,
+    "lng": 78.3489,
+    "radius": 120,
+    "severity": "moderate",
+    "accident_count": 31,
+    "fatalities": 4,
+    "reasons": [
+      "Slippery surface during monsoon",
+      "Sharp turn at flyover exit",
+      "Poor lane discipline by motorists",
+      "Sudden braking by vehicles at toll plaza"
+    ],
+    "safety_measures": [
+      "Reduce speed to 40 km/h on flyover",
+      "Avoid sudden lane changes",
+      "Maintain extra distance during rain",
+      "Use turn signals well in advance"
+    ],
+    "peak_danger_hours": "08:00-10:00"
+  },
+  {
+    "name": "Uppal X Road",
+    "lat": 17.4060,
+    "lng": 78.5591,
+    "radius": 180,
+    "severity": "high",
+    "accident_count": 53,
+    "fatalities": 11,
+    "reasons": [
+      "Complex 6-way intersection with poor signage",
+      "Encroachment by street vendors reducing visibility",
+      "Two-wheelers weaving through traffic",
+      "Frequent power cuts disabling traffic signals"
+    ],
+    "safety_measures": [
+      "Approach at crawling speed (15-20 km/h)",
+      "Check all sides before entering intersection",
+      "Honk before crossing to alert other vehicles",
+      "Never assume right of way"
+    ],
+    "peak_danger_hours": "17:00-20:00"
+  },
+  {
+    "name": "Miyapur Metro Station Road",
+    "lat": 17.4949,
+    "lng": 78.3618,
+    "radius": 100,
+    "severity": "moderate",
+    "accident_count": 28,
+    "fatalities": 3,
+    "reasons": [
+      "Heavy pedestrian footfall from metro station",
+      "Auto-rickshaws stopping abruptly",
+      "Narrow road with two-way traffic",
+      "Poor drainage causing water-logging"
+    ],
+    "safety_measures": [
+      "Drive at 25 km/h maximum near metro entry",
+      "Watch for pedestrians stepping onto road suddenly",
+      "Avoid this route during heavy rain",
+      "Use horn sparingly to avoid startling pedestrians"
+    ],
+    "peak_danger_hours": "08:00-10:00"
+  },
+  {
+    "name": "LB Nagar Flyover Exit",
+    "lat": 17.3477,
+    "lng": 78.5524,
+    "radius": 150,
+    "severity": "high",
+    "accident_count": 44,
+    "fatalities": 9,
+    "reasons": [
+      "Sharp descent leading to brake overheating",
+      "Merging traffic from service road",
+      "Oil spills from commercial vehicles",
+      "Inadequate street lighting at exit"
+    ],
+    "safety_measures": [
+      "Use engine braking on descent",
+      "Check brakes before entering flyover",
+      "Avoid riding on oil patches (dark spots on road)",
+      "Turn on headlights even during day"
+    ],
+    "peak_danger_hours": "19:00-23:00"
+  },
+  {
+    "name": "Shamshabad Airport Road - Toll Plaza",
+    "lat": 17.2403,
+    "lng": 78.4294,
+    "radius": 250,
+    "severity": "critical",
+    "accident_count": 71,
+    "fatalities": 18,
+    "reasons": [
+      "Sudden speed reduction from 80 to 20 km/h",
+      "Drowsy driving on long stretch",
+      "Rear-end collisions at toll queue",
+      "Foggy conditions during winter mornings"
+    ],
+    "safety_measures": [
+      "Start braking 500 meters before toll plaza",
+      "Use hazard lights when slowing down",
+      "Take a break every 2 hours if tired",
+      "Reduce speed to 40 km/h in fog"
+    ],
+    "peak_danger_hours": "05:00-08:00"
+  },
+  {
+    "name": "Jubilee Hills Check Post",
+    "lat": 17.4239,
+    "lng": 78.4056,
+    "radius": 130,
+    "severity": "moderate",
+    "accident_count": 35,
+    "fatalities": 5,
+    "reasons": [
+      "Police check creating sudden bottleneck",
+      "Luxury cars speeding in residential area",
+      "Poor road markings for lane guidance",
+      "School zone with children crossing"
+    ],
+    "safety_measures": [
+      "Obey 30 km/h speed limit strictly",
+      "Be prepared to stop for police checks",
+      "Extra caution during school hours (8-9 AM, 3-4 PM)",
+      "Yield to pedestrians at all times"
+    ],
+    "peak_danger_hours": "14:00-16:00"
+  }
+]

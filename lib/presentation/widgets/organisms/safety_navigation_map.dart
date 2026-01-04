@@ -1,14 +1,16 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:geolocator/geolocator.dart' as geo;
 import '../../../core/theme/app_colors.dart';
-import '../../../services/location_service.dart';
+import '../../../services/black_spot_service.dart';
+import '../../../providers/services_provider.dart';
 
 /// Atomic Design: ORGANISM - Safety Navigation Map
 /// 3D tilted navigation view with black spot markers
-class SafetyNavigationMap extends StatefulWidget {
-  final Function(String name, double distance) onNextBlackSpotUpdate;
+class SafetyNavigationMap extends ConsumerStatefulWidget {
+  final Function(String name, double distance, BlackSpot? spot) onNextBlackSpotUpdate;
   final String mapboxAccessToken;
 
   const SafetyNavigationMap({
@@ -18,13 +20,14 @@ class SafetyNavigationMap extends StatefulWidget {
   });
 
   @override
-  State<SafetyNavigationMap> createState() => _SafetyNavigationMapState();
+  ConsumerState<SafetyNavigationMap> createState() => _SafetyNavigationMapState();
 }
 
-class _SafetyNavigationMapState extends State<SafetyNavigationMap> {
+class _SafetyNavigationMapState extends ConsumerState<SafetyNavigationMap> {
+  BlackSpotService? _blackSpotService;
   MapboxMap? _mapboxMap;
   PointAnnotationManager? _pointAnnotationManager;
-  StreamSubscription<Position>? _positionStream;
+  StreamSubscription<geo.Position>? _positionStream;
 
   // Initial camera position - Hyderabad
   final _initialCameraPosition = CameraOptions(
@@ -47,7 +50,7 @@ class _SafetyNavigationMapState extends State<SafetyNavigationMap> {
         MapWidget(
           key: const ValueKey("mapWidget"),
           cameraOptions: _initialCameraPosition,
-          styleUri: MapboxStyles.NAVIGATION_NIGHT, // Dark theme
+          styleUri: MapboxStyles.DARK, // Dark theme
           textureView: true,
           onMapCreated: _onMapCreated,
         ),
@@ -100,36 +103,74 @@ class _SafetyNavigationMapState extends State<SafetyNavigationMap> {
   Future<void> _loadBlackSpotMarkers() async {
     if (_pointAnnotationManager == null) return;
 
-    final spots = BlackSpotDatabase.blackSpots;
+    try {
+      final blackSpotAsync = await ref.read(blackSpotServiceProvider.future);
+      _blackSpotService = blackSpotAsync;
+      
+      if (!blackSpotAsync.isLoaded) {
+        print('⚠️ Black spots not loaded yet');
+        return;
+      }
 
-    for (var spot in spots) {
-      // Create red circle annotation for each black spot
-      final options = PointAnnotationOptions(
-        geometry: Point(
-          coordinates: Position(
-            spot['lng'] as double,
-            spot['lat'] as double,
+      final spots = blackSpotAsync.spots;
+      print('✅ Loading ${spots.length} black spot markers on map');
+
+      for (var spot in spots) {
+        Color markerColor;
+        switch (spot.severity.toLowerCase()) {
+          case 'critical':
+            markerColor = AppColors.critical;
+            break;
+          case 'high':
+            markerColor = Color(0xFFFF6B6B);
+            break;
+          case 'moderate':
+            markerColor = AppColors.warning;
+            break;
+          default:
+            markerColor = AppColors.textSecondary;
+        }
+
+        final options = PointAnnotationOptions(
+          geometry: Point(
+            coordinates: Position(spot.lng, spot.lat),
           ),
-        ),
-        iconSize: 1.2,
-        iconColor: AppColors.critical.value,
-        textField: spot['name'] as String,
-        textOffset: [0.0, -2.0],
-        textColor: AppColors.critical.value,
-        textSize: 12.0,
-      );
+          iconSize: 2.5,
+          iconColor: markerColor.value,
+          iconOpacity: 0.9,
+          textField: '⚠️ ${spot.name}\n${spot.accidentCount} accidents',
+          textOffset: [0.0, -3.0],
+          textColor: Colors.white.value,
+          textSize: 13.0,
+          textHaloColor: Colors.black.value,
+          textHaloWidth: 2.5,
+        );
 
-      _pointAnnotationManager!.create(options);
+        _pointAnnotationManager!.create(options);
+      }
+      
+      _animateBlackSpotMarkers();
+    } catch (e) {
+      print('❌ Error loading black spots: $e');
     }
   }
 
+  void _animateBlackSpotMarkers() {
+    Timer.periodic(const Duration(milliseconds: 1500), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+    });
+  }
+
   void _startLocationTracking() {
-    const locationSettings = LocationSettings(
-      accuracy: LocationAccuracy.high,
+    const locationSettings = geo.LocationSettings(
+      accuracy: geo.LocationAccuracy.high,
       distanceFilter: 10,
     );
 
-    _positionStream = Geolocator.getPositionStream(
+    _positionStream = geo.Geolocator.getPositionStream(
       locationSettings: locationSettings,
     ).listen((position) {
       _updateCamera(position);
@@ -137,7 +178,7 @@ class _SafetyNavigationMapState extends State<SafetyNavigationMap> {
     });
   }
 
-  void _updateCamera(Position position) {
+  void _updateCamera(geo.Position position) {
     _mapboxMap?.flyTo(
       CameraOptions(
         center: Point(
@@ -151,27 +192,23 @@ class _SafetyNavigationMapState extends State<SafetyNavigationMap> {
     );
   }
 
-  void _calculateNearestBlackSpot(Position userPosition) {
-    double minDistance = double.infinity;
-    String nextSpotName = "No black spots nearby";
-
-    final spots = BlackSpotDatabase.blackSpots;
-
-    for (var spot in spots) {
-      double distance = Geolocator.distanceBetween(
-        userPosition.latitude,
-        userPosition.longitude,
-        spot['lat'] as double,
-        spot['lng'] as double,
-      );
-
-      if (distance < minDistance) {
-        minDistance = distance;
-        nextSpotName = spot['name'] as String;
-      }
+  void _calculateNearestBlackSpot(geo.Position userPosition) {
+    if (_blackSpotService == null || !_blackSpotService!.isLoaded) {
+      widget.onNextBlackSpotUpdate("Loading spots...", 0, null);
+      return;
     }
 
-    // Notify parent widget
-    widget.onNextBlackSpotUpdate(nextSpotName, minDistance);
+    final nearestData = _blackSpotService!.getNearestBlackSpotWithDistance(
+      userPosition.latitude,
+      userPosition.longitude,
+    );
+
+    if (nearestData != null) {
+      final spot = nearestData['spot'] as BlackSpot;
+      final distance = nearestData['distance'] as double;
+      widget.onNextBlackSpotUpdate(spot.name, distance, spot);
+    } else {
+      widget.onNextBlackSpotUpdate("No black spots nearby", 0, null);
+    }
   }
 }

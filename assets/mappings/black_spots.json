@@ -1,0 +1,122 @@
+[
+    {
+        "bs_id": 1,
+        "name": "Yamnampet X Road",
+        "lat": 17.4435,
+        "lng": 78.602,
+        "station_id": 0,
+        "risk_severity": "High",
+        "reasons": "Traffic congestion; Key junction connecting Warangal/Bhongir",
+        "measures": "Shift U-Turn; Underpass construction (Sanctioned)"
+    },
+    {
+        "bs_id": 2,
+        "name": "Uppal X Road",
+        "lat": 17.4009,
+        "lng": 78.5594,
+        "station_id": 3,
+        "risk_severity": "Critical",
+        "reasons": "T-junction; School zone nearby; Heavy Pedestrian movement",
+        "measures": "Rumble strips; Speed breakers; Install Red Light Cameras"
+    },
+    {
+        "bs_id": 3,
+        "name": "NTPC Y Junction (Annojiguda)",
+        "lat": 17.4325,
+        "lng": 78.6184,
+        "station_id": 2,
+        "risk_severity": "High",
+        "reasons": "Heavy Traffic convergence; Highway merging",
+        "measures": "Install Traffic Signals; Blinkers"
+    },
+    {
+        "bs_id": 4,
+        "name": "Ghatkesar ORR Flyovers",
+        "lat": 17.452,
+        "lng": 78.591,
+        "station_id": 0,
+        "risk_severity": "Medium",
+        "reasons": "High Speeding on Highway; Blind spots",
+        "measures": "Speed Cameras; Lane discipline enforcement"
+    },
+    {
+        "bs_id": 5,
+        "name": "Aurora College (Aushapur)",
+        "lat": 17.4612,
+        "lng": 78.6355,
+        "station_id": 0,
+        "risk_severity": "High",
+        "reasons": "Student/Pedestrian crossing; College zone",
+        "measures": "Install Bollards; Zebra Crossings"
+    },
+    {
+        "bs_id": 6,
+        "name": "Vandana Hotel (Ghatkesar)",
+        "lat": 17.4485,
+        "lng": 78.583,
+        "station_id": 0,
+        "risk_severity": "Medium",
+        "reasons": "Slope & Curve road; Speeding vehicles",
+        "measures": "Cautionary boards; Shift bus stop to service road"
+    },
+    {
+        "bs_id": 7,
+        "name": "Nagole Metro Station",
+        "lat": 17.3965,
+        "lng": 78.5528,
+        "station_id": 3,
+        "risk_severity": "Medium",
+        "reasons": "Uneven crossings; Wrong parking; Metro traffic",
+        "measures": "Rumble strips; Cautionary boards; Parking enforcement"
+    },
+    {
+        "bs_id": 8,
+        "name": "Survey of India Signal",
+        "lat": 17.4055,
+        "lng": 78.5505,
+        "station_id": 3,
+        "risk_severity": "Medium",
+        "reasons": "Signal jumping; High volume intersection",
+        "measures": "Strict Enforcement; Signal timing optimization"
+    },
+    {
+        "bs_id": 9,
+        "name": "Masjid E Quthubsha (Ramanthapur)",
+        "lat": 17.392,
+        "lng": 78.535,
+        "station_id": 3,
+        "risk_severity": "High",
+        "reasons": "Narrow road (Graveyard); Low median",
+        "measures": "Increase Median height; Road widening"
+    },
+    {
+        "bs_id": 10,
+        "name": "Spark Hospital (Peerzadiguda)",
+        "lat": 17.41,
+        "lng": 78.575,
+        "station_id": 1,
+        "risk_severity": "Medium",
+        "reasons": "High-speed vehicles; Hospital zone",
+        "measures": "Bollards; Rumble Strips; Silence Zone enforcement"
+    },
+    {
+        "bs_id": 12,
+        "name": "ZTC X Road (Malkajgiri)",
+        "lat": 17.445,
+        "lng": 78.528,
+        "station_id": 1,
+        "risk_severity": "Medium",
+        "reasons": "T-junction; Low median visibility",
+        "measures": "Speed control; Heighten central median"
+    },
+    {
+        "bs_id": 18,
+        "name": "Radhika X Road (Kushaiguda)",
+        "lat": 17.483,
+        "lng": 78.567,
+        "station_id": 0,
+        "risk_severity": "Critical",
+        "reasons": "Heavy speed vehicles; Complex Junction",
+        "measures": "Junction development; Remove electrical poles"
+    }
+]
