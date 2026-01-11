@@ -2,10 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
-import 'package:geolocator/geolocator.dart' as geo;
 import '../../../core/theme/app_colors.dart';
 import '../../../services/black_spot_service.dart';
 import '../../../providers/services_provider.dart';
+import '../../../providers/risk_provider.dart';
 
 /// Atomic Design: ORGANISM - Safety Navigation Map
 /// 3D tilted navigation view with black spot markers
@@ -27,9 +27,11 @@ class _SafetyNavigationMapState extends ConsumerState<SafetyNavigationMap> {
   BlackSpotService? _blackSpotService;
   MapboxMap? _mapboxMap;
   PointAnnotationManager? _pointAnnotationManager;
-  StreamSubscription<geo.Position>? _positionStream;
+  bool _initialCameraSet = false;
+  double? _lastLat;
+  double? _lastLng;
 
-  // Initial camera position - Hyderabad
+  // Initial camera position - Hyderabad (fallback)
   final _initialCameraPosition = CameraOptions(
     center: Point(coordinates: Position(78.5600, 17.4050)),
     zoom: 15.0,
@@ -38,13 +40,13 @@ class _SafetyNavigationMapState extends ConsumerState<SafetyNavigationMap> {
   );
 
   @override
-  void dispose() {
-    _positionStream?.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    // Use ref.listen to react to location changes OUTSIDE of build phase
+    // This avoids the "setState called during build" error
+    ref.listen<RiskState>(riskProvider, (previous, next) {
+      _onLocationUpdate(next.latitude, next.longitude);
+    });
+    
     return Stack(
       children: [
         MapWidget(
@@ -81,7 +83,7 @@ class _SafetyNavigationMapState extends ConsumerState<SafetyNavigationMap> {
   void _onMapCreated(MapboxMap mapboxMap) {
     _mapboxMap = mapboxMap;
 
-    // Enable user location
+    // Enable user location puck
     mapboxMap.location.updateSettings(
       LocationComponentSettings(
         enabled: true,
@@ -95,9 +97,34 @@ class _SafetyNavigationMapState extends ConsumerState<SafetyNavigationMap> {
       _pointAnnotationManager = manager;
       _loadBlackSpotMarkers();
     });
+  }
 
-    // Start tracking user
-    _startLocationTracking();
+  void _onLocationUpdate(double lat, double lng) {
+    // Skip if location hasn't changed or is still at default
+    if (lat == 17.3850 && lng == 78.4867) return; // Skip initial/default values
+    if (_lastLat == lat && _lastLng == lng) return;
+    
+    _lastLat = lat;
+    _lastLng = lng;
+    
+    // Update camera position
+    if (_mapboxMap != null) {
+      _mapboxMap!.flyTo(
+        CameraOptions(
+          center: Point(
+            coordinates: Position(lng, lat),
+          ),
+          zoom: 16.0,
+          pitch: 60.0,
+          bearing: 0.0,
+        ),
+        MapAnimationOptions(duration: _initialCameraSet ? 1000 : 500),
+      );
+      _initialCameraSet = true;
+    }
+    
+    // Calculate nearest black spot
+    _calculateNearestBlackSpot(lat, lng);
   }
 
   Future<void> _loadBlackSpotMarkers() async {
@@ -108,12 +135,10 @@ class _SafetyNavigationMapState extends ConsumerState<SafetyNavigationMap> {
       _blackSpotService = blackSpotAsync;
       
       if (!blackSpotAsync.isLoaded) {
-        print('⚠️ Black spots not loaded yet');
         return;
       }
 
       final spots = blackSpotAsync.spots;
-      print('✅ Loading ${spots.length} black spot markers on map');
 
       for (var spot in spots) {
         Color markerColor;
@@ -150,6 +175,11 @@ class _SafetyNavigationMapState extends ConsumerState<SafetyNavigationMap> {
       }
       
       _animateBlackSpotMarkers();
+      
+      // Recalculate with current position now that service is loaded
+      if (_lastLat != null && _lastLng != null) {
+        _calculateNearestBlackSpot(_lastLat!, _lastLng!);
+      }
     } catch (e) {
       print('❌ Error loading black spots: $e');
     }
@@ -164,43 +194,15 @@ class _SafetyNavigationMapState extends ConsumerState<SafetyNavigationMap> {
     });
   }
 
-  void _startLocationTracking() {
-    const locationSettings = geo.LocationSettings(
-      accuracy: geo.LocationAccuracy.high,
-      distanceFilter: 10,
-    );
-
-    _positionStream = geo.Geolocator.getPositionStream(
-      locationSettings: locationSettings,
-    ).listen((position) {
-      _updateCamera(position);
-      _calculateNearestBlackSpot(position);
-    });
-  }
-
-  void _updateCamera(geo.Position position) {
-    _mapboxMap?.flyTo(
-      CameraOptions(
-        center: Point(
-          coordinates: Position(position.longitude, position.latitude),
-        ),
-        zoom: 16.0,
-        pitch: 60.0,
-        bearing: position.heading, // Rotate based on direction
-      ),
-      MapAnimationOptions(duration: 1000),
-    );
-  }
-
-  void _calculateNearestBlackSpot(geo.Position userPosition) {
+  void _calculateNearestBlackSpot(double lat, double lng) {
     if (_blackSpotService == null || !_blackSpotService!.isLoaded) {
       widget.onNextBlackSpotUpdate("Loading spots...", 0, null);
       return;
     }
 
     final nearestData = _blackSpotService!.getNearestBlackSpotWithDistance(
-      userPosition.latitude,
-      userPosition.longitude,
+      lat,
+      lng,
     );
 
     if (nearestData != null) {
